@@ -1,0 +1,3 @@
+class SandCell extends Cell { 
+  
+}
