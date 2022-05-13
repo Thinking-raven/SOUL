@@ -1,34 +1,46 @@
-abstract class World{
+class World{
   
   Cell[][] cells;
   
   int worldHeight, worldWidth;
   
-  World(int height, int width) {
+  World(int width, int height) {
       worldHeight = height;
       worldWidth = width;
       initWorld();
   }
  private void initWorld(){
    cells = new Cell[worldHeight][worldWidth];
-    for (int x=0; x<width/cellsize; x++) {
-     for (int y=0; y<height/cellsize; y++) {
-      t = round(random(2));
-      if (empty > t) {
+   for (int y=0; y<worldHeight; y++) {
+     for (int x=0; x<worldWidth; x++) {
+       println("x="+x+" y=" +y);
+       cells[x][y] = createRandomCell();
+     }
+   }    
+ } 
+  
+  private Cell createRandomCell() {
+  
+    int t = int(random(3));
+    if(t == 0) {
+      return new WaterCell();
+    }
+    if(t == 1) {
+      return new LandCell();
+    }
+    return new SandCell();
+  
+  }
+  public void draw(int cellsize) {
+    for (int y=0; y<worldHeight; y++) {
+     for (int x=0; x<worldWidth; x++) {
+       println("x="+x+" y=" +y);
+       fill(cells[x][y].cellColor);
+       rect(x*cellsize, y*cellsize, cellsize, cellsize);
+       
+     }
+   }    
 
-        if (t == 0) {
-          empty = sand;
-        }
-        if (t == 1) {
-          empty = water;
-        }
-        if (t == 2) {
-          empty = land;
-        }
-        cells[x][y] = int(empty);
-        fill(empty);
-        }
-      }
-    }    
-  } 
+  
+  }
 }
