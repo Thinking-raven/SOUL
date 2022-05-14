@@ -1,9 +1,9 @@
 class World {
   final int grassSeeds = 100;
-
+  final int numBunnies = 10;
   //laver vores class array cells.
   Cell[][] cells;
-  Agent agent;
+  public ArrayList<AgentBunny> bunnies = new ArrayList<AgentBunny>();
   //laver to fields som er vores height og width variabler
   int worldHeight, worldWidth;
   
@@ -14,17 +14,21 @@ class World {
       initWorld();
   }
  private void initWorld(){
-   print("initializing world...");
-   cells = new Cell[worldHeight][worldWidth];
+   print("initializing world...", worldHeight, worldWidth);
+   cells = new Cell[worldWidth][worldHeight];
    for (int y=0; y<worldHeight; y++) {
      for (int x=0; x<worldWidth; x++) {
        //println("x="+x+" y=" +y);
        cells[x][y] = createRandomCell();
      
-     }
-   }    
+     }//x
+   }//y   
+   spawnBunnies(numBunnies);
+   
    println("done");
- } 
+ }
+  
+ 
   
   private Cell createRandomCell() {
   //kører nogle if kommandoer som tager giver en tilfældig celle i return
@@ -36,24 +40,40 @@ class World {
       return new EarthCell();
     }
     return new SandCell();
-  
   }
+  
   public void draw(int cellsize) {
+  
     //laver et for loop som fylder skærmen ud med cells
     for (int y=0; y<worldHeight; y++) {
-     for (int x=0; x<worldWidth; x++) {
-     //  println("x="+x+" y=" +y);
-       fill(cells[x][y].getCellColor());
+      for (int x=0; x<worldWidth; x++) {
+      //  println("x="+x+" y=" +y);
+        fill(cells[x][y].getCellColor());
        //tegner kasserne som bliver til celler
-       rect(x*cellsize, y*cellsize, cellsize, cellsize);
-       
-     }
-   }    
+        rect(x*cellsize, y*cellsize, cellsize, cellsize);
+     
+      }
+    }  
+    
+    for ( AgentBunny bunny : bunnies) {
+     
+      //size(10, 10);
+      fill(255, 0, 0);
+      ellipse(bunny.posX*cellsize+cellsize/2, bunny.posY*cellsize+cellsize/2 , 10, 10);
+      println("bunny at position", bunny.posX, bunny.posY);
+      
+    }
+   
   }
+  
   private ArrayList<Cell> getCellCluster(int x, int y) {
+    return getCellCluster(x,y,1);
+  }
+  
+  private ArrayList<Cell> getCellCluster(int x, int y, int size) {
     ArrayList<Cell> cluster = new ArrayList<Cell>();
-    for(int dx = -1; dx<=1; dx++) {
-      for(int dy = -1; dy<=1; dy++) {
+    for(int dx = -size; dx<=size; dx++) {
+      for(int dy = -size; dy<=size; dy++) {
         if (x+dx >= 0 && 
             x+dx < worldWidth && 
             y+dy >= 0 && 
@@ -179,31 +199,39 @@ class World {
  }
   public void grow(int x, int y) {
     int grass = 0;
-    final float ODDS = 0.3;
     ArrayList<Cell> cluster = getCellCluster(x, y);
-     if ( cells[x][y] instanceof EarthCell) {
+     if ( cells[x][y] instanceof EarthCell || cells[x][y] instanceof SandCell) {
        for (Cell c : cluster) {
          if (c.hasGrass) {
           grass += 1; 
          }
        }
-       //println("ODDS = ", float(grass)/float(cluster.size()));
-       if ( float(grass)/float(cluster.size()) > ODDS) {
+      // println("ODDS = ", 1 - float(grass)/float(cluster.size()));
+      // println("grassODDS = ", cells[x][y].grassODDS);
+       if ( 1 - float(grass)/float(cluster.size()) < cells[x][y].grassODDS) {
          cells[x][y].hasGrass = true;
-         print("growing grass");
+         //print("*");
        }   
           
 
    }
   }
-  
-  
-  
+ 
   public boolean plantGrass(int x, int y) {
    if( cells[x][y] instanceof EarthCell) {
      cells[x][y].hasGrass = true;
      return true;
   }
   return false;
+ }
+ 
+ public void spawnBunnies(int numBunnies) {
+   print("spawning bunnies");
+   int b = numBunnies;
+    while( b > 0) {
+     bunnies.add(new AgentBunny());
+     b -= 1;
+     print("B");
+   }
  }
 } // WORLD
