@@ -1,6 +1,8 @@
 class World {
   final int grassSeeds = 100;
   final int numBunnies = 10;
+  
+  int updateInterval = 100;
   //laver vores class array cells.
   Cell[][] cells;
   public ArrayList<AgentBunny> bunnies = new ArrayList<AgentBunny>();
@@ -60,7 +62,7 @@ class World {
       //size(10, 10);
       fill(255, 0, 0);
       ellipse(bunny.pos.x*cellsize + cellsize/2, bunny.pos.y*cellsize + cellsize/2, 10, 10);
-      println("bunny at position", bunny.pos);
+      //println("bunny at position", bunny.pos);
       
     }
    
@@ -180,12 +182,21 @@ class World {
  }  
  
  
- 
+
+   
  
  public void updateWorld(){
    int locx = int(random(0, worldWidth));
    int locy = int(random(0, worldHeight));
    grow(locx, locy);
+   
+   if (updateInterval == 0) {
+     feedAgents();
+     moveAgents();
+     updateInterval = 100;
+   }
+   updateInterval -= 1; 
+   
    // changeCell(locx, locy);
  } // updateWorld
  
@@ -197,6 +208,19 @@ class World {
      }
    }
  }
+  
+  private void moveAgents() {
+   for ( Agent bunny : bunnies) {
+     bunny.move();  
+   }
+  }
+  
+  private void feedAgents() {
+   for ( Agent bunny : bunnies) {
+     bunny.feed();  
+   }
+  }
+  
   public void grow(int x, int y) {
     int grass = 0;
     ArrayList<Cell> cluster = getCellCluster(x, y);
@@ -229,7 +253,7 @@ class World {
    print("spawning bunnies");
    int b = numBunnies;
     while( b > 0) {
-     bunnies.add(new AgentBunny());
+     bunnies.add(new AgentBunny(this));
      b -= 1;
      print("B");
    }

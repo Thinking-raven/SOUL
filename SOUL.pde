@@ -18,5 +18,6 @@ void setup() {
 void draw() {
  world.draw(cellsize);
  world.updateWorld();
+ 
 
 }
