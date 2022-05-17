@@ -1,8 +1,7 @@
 abstract class Agent {
   int speed;
   PVector direction;
-  int posX;
-  int posY;
+  IVector pos;
   int size;
   color agentColor;
   Terrain[] habitat;  

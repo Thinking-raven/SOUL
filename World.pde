@@ -59,8 +59,8 @@ class World {
      
       //size(10, 10);
       fill(255, 0, 0);
-      ellipse(bunny.posX*cellsize+cellsize/2, bunny.posY*cellsize+cellsize/2 , 10, 10);
-      println("bunny at position", bunny.posX, bunny.posY);
+      ellipse(bunny.pos.x*cellsize + cellsize/2, bunny.pos.y*cellsize + cellsize/2, 10, 10);
+      println("bunny at position", bunny.pos);
       
     }
    
