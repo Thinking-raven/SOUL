@@ -13,8 +13,9 @@ public IVector normalize() {
   return new IVector(round(x/length), round(y/length));
  }
  
- public void add(IVector v) { 
+ public IVector add(IVector v) { 
    this.x += v.x;
    this.y += v.y;
+   return this;
  }
 }

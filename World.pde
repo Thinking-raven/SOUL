@@ -193,7 +193,7 @@ class World {
    if (updateInterval == 0) {
      feedAgents();
      moveAgents();
-     updateInterval = 100;
+     updateInterval = 50;
    }
    updateInterval -= 1; 
    
