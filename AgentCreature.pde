@@ -1,6 +1,6 @@
 abstract class AgentCreature extends Agent {
   World world;
-  
+
   int speed;
   PVector direction;
   IVector pos;
@@ -8,8 +8,7 @@ abstract class AgentCreature extends Agent {
   color creatureColor;
   Terrain[] habitat;  
   int visionRange;
-  
+
   abstract public void move();
   abstract public void feed();
-  
 }

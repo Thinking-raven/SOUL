@@ -19,7 +19,7 @@ class AgentBunny extends AgentCreature { //<>//
     // print("found", grass.size());
     IVector target, direction;
     if ( grass.size() == 0) {
-       setPosition(new IVector(round(random(-1, 1))+pos.x, round(random(-1, 1))+pos.y));
+      setPosition(new IVector(round(random(-1, 1))+pos.x, round(random(-1, 1))+pos.y));
     } else {
       int i = int(random(grass.size()));
       target = grass.get(i);
@@ -33,7 +33,7 @@ class AgentBunny extends AgentCreature { //<>//
   }
 
   public void feed() {
-     world.cells[pos.x][pos.y].hasGrass = false;
+    world.cells[pos.x][pos.y].hasGrass = false;
   }
 
   private ArrayList<IVector> findCloseGrass() {

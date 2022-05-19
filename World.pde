@@ -64,10 +64,9 @@ class World {
       //println("bunny at position", bunny.pos);
     }
     for ( AgentGrass grass : grasses) {
-      fill(57,171,41);
-      rect(grass.pos.x,grass.pos.y, 20, 20);
+      fill(57, 171, 41);
+      rect(grass.pos.x, grass.pos.y, 20, 20);
     }
-    
   }
 
   private ArrayList<Cell> getCellCluster(int x, int y) {
