@@ -1,12 +1,10 @@
-class AgentFox extends Agent {
- AgentFox() {
-   
- }
- 
- public void move() {  
- }
- 
- public void feed() {
- }
- 
+class AgentFox extends AgentCreature {
+  AgentFox() {
+  }
+
+  public void move() {
+  }
+
+  public void feed() {
+  }
 }

@@ -1,4 +1,4 @@
-class AgentBunny extends Agent { //<>//
+class AgentBunny extends AgentCreature { //<>//
   AgentBunny(World world) {
     this.world = world;
 
@@ -19,7 +19,7 @@ class AgentBunny extends Agent { //<>//
     // print("found", grass.size());
     IVector target, direction;
     if ( grass.size() == 0) {
-       setPosition(new IVector(round(random(-1, 1)), round(random(-1, 1))));
+       setPosition(new IVector(round(random(-1, 1))+pos.x, round(random(-1, 1))+pos.y));
     } else {
       int i = int(random(grass.size()));
       target = grass.get(i);
@@ -33,7 +33,7 @@ class AgentBunny extends Agent { //<>//
   }
 
   public void feed() {
-    // world.cells[pos.x][pos.y].hasGrass = false;
+     world.cells[pos.x][pos.y].hasGrass = false;
   }
 
   private ArrayList<IVector> findCloseGrass() {
@@ -46,14 +46,14 @@ class AgentBunny extends Agent { //<>//
           pos.y+dy >= 0 && 
           pos.y+dy < worldHeight) {
           if ( world.cells[pos.x+dx][pos.y+dy].hasGrass) {
-            if ( dist(pos.x, pos.y, dx, dy) < maxDist) {
+            if ( mag(dx, dy) < maxDist) {
               closeGrass.clear();
               println("found grass at ", pos.x+dx, pos.y+dy, maxDist);
               closeGrass.add(new IVector(pos.x+dx, pos.y+dy));
               println("dx, dy = ", dx, dy);
-              maxDist = dist(pos.x, pos.y, dx, dy);
+              maxDist = mag(dx, dy);
             }
-            if ( dist(pos.x, pos.y, dx, dy) == maxDist) {
+            if ( mag(dx, dy) == maxDist) {
               println("found more grass at ", pos.x+dx, pos.y+dy);
               closeGrass.add(new IVector(pos.x+dx, pos.y+dy));
             }

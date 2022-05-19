@@ -5,6 +5,7 @@ class World {
   int updateInterval = 100;
   //laver vores class array cells.
   Cell[][] cells;
+  public ArrayList<AgentGrass> grasses = new ArrayList<AgentGrass>();
   public ArrayList<AgentBunny> bunnies = new ArrayList<AgentBunny>();
   //laver to fields som er vores height og width variabler
   int worldHeight, worldWidth;
@@ -62,6 +63,11 @@ class World {
       ellipse(bunny.pos.x*cellsize + cellsize/2, bunny.pos.y*cellsize + cellsize/2, 10, 10);
       //println("bunny at position", bunny.pos);
     }
+    for ( AgentGrass grass : grasses) {
+      fill(57,171,41);
+      rect(grass.pos.x,grass.pos.y, 20, 20);
+    }
+    
   }
 
   private ArrayList<Cell> getCellCluster(int x, int y) {
@@ -199,13 +205,13 @@ class World {
   }
 
   private void moveAgents() {
-    for ( Agent bunny : bunnies) {
+    for ( AgentCreature bunny : bunnies) {
       bunny.move();
     }
   }
 
   private void feedAgents() {
-    for ( Agent bunny : bunnies) {
+    for ( AgentCreature bunny : bunnies) {
       bunny.feed();
     }
   }
