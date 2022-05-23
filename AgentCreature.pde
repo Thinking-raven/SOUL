@@ -3,12 +3,20 @@ abstract class AgentCreature extends Agent {
 
   int speed;
   PVector direction;
-  IVector pos;
   int size;
-  color creatureColor;
   Terrain[] habitat;  
   int visionRange;
 
-  abstract public void move();
-  abstract public void feed();
+  abstract protected void move();
+  abstract protected void feed();
+  
+  //protected AgentCreature(World world) {
+  //  this.world = world;  
+  //}
+  
+  public void update() {
+    health -= 1; // All Creatures uses one eneryg 
+    move();
+    feed();
+  }
 }

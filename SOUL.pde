@@ -13,8 +13,7 @@ void setup() {
   // size(cellsize*worldWidth, cellsize*worldHeight);
   size(1000, 1000);
   world = new World(worldWidth, worldHeight);
-  world.dilateWorld(); 
-  world.seedWorld();
+  //world.seedWorld();
 }
 
 void draw() {

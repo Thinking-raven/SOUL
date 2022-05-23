@@ -1,8 +1,7 @@
 abstract class Cell {
   protected color cellColor;
 
-  protected float grassODDS = 0.0;
-  public boolean hasGrass = false;
+  protected int chanceOfGrass = 0;
 
   public void setCellColor(color cc) {
     cellColor = cc;

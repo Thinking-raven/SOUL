@@ -1,36 +1,43 @@
 class World {
   final int grassSeeds = 100;
-  final int numBunnies = 10;
+  final int numBunnies = 20;
+  final int numFoxes = 3;
+  final int grassDensity = 10;
 
   int updateInterval = 100;
   //laver vores class array cells.
   Cell[][] cells;
   public ArrayList<AgentGrass> grasses = new ArrayList<AgentGrass>();
   public ArrayList<AgentBunny> bunnies = new ArrayList<AgentBunny>();
+  public ArrayList<AgentFox> foxes = new ArrayList<AgentFox>();
+
   //laver to fields som er vores height og width variabler
   int worldHeight, worldWidth;
 
-  // constructor vores world og giver den nogle parametre. 
+  // constructor vores world og giver den nogle parametre.
   World(int width, int height) {
     worldHeight = height;
     worldWidth = width;
     initWorld();
   }
+
   private void initWorld() {
     print("initializing world...", worldHeight, worldWidth);
     cells = new Cell[worldWidth][worldHeight];
     for (int y=0; y<worldHeight; y++) {
       for (int x=0; x<worldWidth; x++) {
-        //println("x="+x+" y=" +y);
         cells[x][y] = createRandomCell();
       }//x
-    }//y   
+    }//y
+
+    dilateWorld(); 
+
+    plantGrass();
     spawnBunnies(numBunnies);
+    spawnFoxes(numFoxes);
 
     println("done");
   }
-
-
 
   private Cell createRandomCell() {
     //kører nogle if kommandoer som tager giver en tilfældig celle i return
@@ -54,18 +61,26 @@ class World {
         //tegner kasserne som bliver til celler
         rect(x*cellsize, y*cellsize, cellsize, cellsize);
       }
-    }  
+    }
+
+    for ( AgentGrass grass : grasses) {
+      fill(grass.getColor()); // TODO Skal bruge AgentGas
+      rect(grass.pos.x*cellsize, grass.pos.y*cellsize, cellsize, cellsize);
+    }
 
     for ( AgentBunny bunny : bunnies) {
-
       //size(10, 10);
-      fill(255, 0, 0);
-      ellipse(bunny.pos.x*cellsize + cellsize/2, bunny.pos.y*cellsize + cellsize/2, 10, 10);
+      fill(bunny.getColor());
+      int bunnySize = min(bunny.getHealth()/5, 12);
+      ellipse(bunny.pos.x*cellsize + cellsize/2, bunny.pos.y*cellsize + cellsize/2, bunnySize, bunnySize);
       //println("bunny at position", bunny.pos);
     }
-    for ( AgentGrass grass : grasses) {
-      fill(57, 171, 41);
-      rect(grass.pos.x, grass.pos.y, 20, 20);
+    
+     for ( AgentFox fox : foxes) {
+      fill(fox.getColor());
+      int foxSize = min(fox.getHealth()/4, 15);
+      ellipse(fox.pos.x*cellsize + cellsize/2, fox.pos.y*cellsize + cellsize/2, foxSize, foxSize);
+      //println("fox at position", fox.pos.x, fox.pos.y);
     }
   }
 
@@ -77,15 +92,39 @@ class World {
     ArrayList<Cell> cluster = new ArrayList<Cell>();
     for (int dx = -size; dx<=size; dx++) {
       for (int dy = -size; dy<=size; dy++) {
-        if (x+dx >= 0 && 
-          x+dx < worldWidth && 
-          y+dy >= 0 && 
+        if (x+dx >= 0 &&
+          x+dx < worldWidth &&
+          y+dy >= 0 &&
           y+dy < worldHeight) {
           cluster.add(cells[x+dx][y+dy]);
         }
       }
     }
     return cluster;
+  }
+
+
+  private <T extends Agent> ArrayList<T> findClosest(ArrayList<T> agents, int x, int y, float maxDist) {
+    ArrayList<T> closest = new ArrayList<T>();
+
+    for (T agent : agents) {
+      if (dist(agent.pos.x, agent.pos.y, x, y) < maxDist) {
+        closest.clear();
+        closest.add(agent);
+        maxDist = dist(agent.pos.x, agent.pos.y, x, y);
+      } else if (dist(agent.pos.x, agent.pos.y, x, y) == maxDist) {
+        closest.add(agent);
+      }
+    }
+    return closest;
+  }
+
+  public ArrayList<AgentBunny> findClosestBunnies(int x, int y, float maxDist) {
+    return findClosest(bunnies, x, y, maxDist);
+  }
+
+  public ArrayList<AgentGrass> findClosestGrass(int x, int y, float maxDist) {
+    return findClosest(grasses, x, y, maxDist);
   }
 
   public void changeCell(int x, int y) {
@@ -117,7 +156,7 @@ class World {
   /**
    * Performs dilation on cluster - creating a more even world
    */
-  public void dilateCluster(int x, int y) { 
+  public void dilateCluster(int x, int y) {
     ArrayList<Cell> cluster = getCellCluster(x, y);
     int numSand = 0;
     int numLand = 0;
@@ -133,8 +172,6 @@ class World {
       }
     }
 
-    //println("Found: " + numSand + " Sandcells, " + numWater + " WaterCells, " + numLand + " LandCells");
-
     int i = numSand;
     Terrain terrain = Terrain.SAND;
 
@@ -148,48 +185,29 @@ class World {
     }
 
     switch (terrain) {
-    case SAND: 
-      cells[x][y] = new SandCell(); 
-      // println ("Chose SandCell");
+    case SAND:
+      cells[x][y] = new SandCell();
       break;
     case EARTH:
       cells[x][y] = new EarthCell();
-      //println ("Chose LandCell");
-      break; 
+      break;
     case WATER:
       cells[x][y] = new WaterCell();
-      //println ("Chose WaterCell");
     }
   } // dilateCluster
 
-
-  public void seedWorld() {
-    int i = grassSeeds;
-    while ( i > 0 ) {
-      int locx = int(random(1, worldWidth - 1));
-      int locy = int(random(1, worldHeight - 1));
-      boolean planted = plantGrass(locx, locy);
-      if ( planted) {
-        i -= 1;
-      }
-    }
-  }  
-
-
-
-
-
   public void updateWorld() {
-    int locx = int(random(0, worldWidth));
-    int locy = int(random(0, worldHeight));
-    grow(locx, locy);
+    //int locx = int(random(0, worldWidth));
+    //int locy = int(random(0, worldHeight));
+    //grow(locx, locy);
 
     if (updateInterval == 0) {
-      feedAgents();
-      moveAgents();
+      updatePlants();
+      updateBunnies();
+      updateFoxes();
       updateInterval = 50;
     }
-    updateInterval -= 1; 
+    updateInterval -= 1;
 
     // changeCell(locx, locy);
   } // updateWorld
@@ -203,45 +221,97 @@ class World {
     }
   }
 
-  private void moveAgents() {
+  private void updateBunnies() {
+    ArrayList<AgentCreature> deadBunnies = new ArrayList<AgentCreature>();
     for ( AgentCreature bunny : bunnies) {
-      bunny.move();
+      if (bunny.getHealth() <= 0) {
+        println("Bunny died");
+        deadBunnies.add(bunny);
+      } else {
+        bunny.update();
+      }
     }
+    bunnies.removeAll(deadBunnies);
   }
 
-  private void feedAgents() {
-    for ( AgentCreature bunny : bunnies) {
-      bunny.feed();
+  private void updateFoxes() {
+    ArrayList<AgentCreature> deadFoxes = new ArrayList<AgentCreature>();
+    for ( AgentCreature fox : foxes) {
+      if (fox.getHealth() <= 0) {
+        println("Fox starved to death");
+        deadFoxes.add(fox);
+      } else {
+        fox.update();
+      }
     }
+    foxes.removeAll(deadFoxes);
+  }
+
+  private void updatePlants() {
+    ArrayList<AgentPlant> deadPlants = new ArrayList<AgentPlant>();
+    for ( AgentPlant plant : grasses) {
+      if (plant.getHealth() <= 0) {
+        println("Grass died");
+        deadPlants.add(plant);
+      } else {
+        plant.update();
+      }
+    }
+    grasses.removeAll(deadPlants);
   }
 
   public void grow(int x, int y) {
-    int grass = 0;
+    //int grass = 0;
     ArrayList<Cell> cluster = getCellCluster(x, y);
-    if ( cells[x][y] instanceof EarthCell || cells[x][y] instanceof SandCell) {
       for (Cell c : cluster) {
-        if (c.hasGrass) {
-          grass += 1;
+        if ( cells[x][y] instanceof EarthCell || cells[x][y] instanceof SandCell) {
+        //if (c.hasGrass) {
+        //  grass += 1;
+        //}
+      }
+      //if ( 1 - float(grass)/float(cluster.size()) < cells[x][y].grassODDS) {
+      //  cells[x][y].hasGrass = true;
+      //  //print("*");
+      //}
+    }
+  }
+
+
+  public void plantGrass() {
+    println("Planting Grass...");
+    for (int y=0; y < worldHeight; y++) {
+      for (int x=0; x < worldWidth; x++) {
+        if ( cells[x][y] instanceof EarthCell) {
+          if (cells[x][y].chanceOfGrass > random(0, 100)) {
+            grasses.add(new AgentGrass(this, x, y));
+          }
         }
-      }
-      // println("ODDS = ", 1 - float(grass)/float(cluster.size()));
-      // println("grassODDS = ", cells[x][y].grassODDS);
-      if ( 1 - float(grass)/float(cluster.size()) < cells[x][y].grassODDS) {
-        cells[x][y].hasGrass = true;
-        //print("*");
-      }
+      }//x
+    }//y
+  }
+
+
+//  private <T extends AgentCreature> void spawnCreatures(ArrayList<T> creatures, int numCreatures) {
+//    int i = numCreatures;
+//    while ( i > 0) {
+//      creatures.add(new T(this));  // Can't do new T(); :-(
+//       -= 1;
+//      print("B");
+//    }
+//  }
+
+
+  private void spawnFoxes(int numFoxes) {
+    print("spawning foxes");
+    int f = numFoxes;
+    while ( f > 0) {
+      foxes.add(new AgentFox(this));
+      f -= 1;
+      print("F");
     }
   }
 
-  public boolean plantGrass(int x, int y) {
-    if ( cells[x][y] instanceof EarthCell) {
-      cells[x][y].hasGrass = true;
-      return true;
-    }
-    return false;
-  }
-
-  public void spawnBunnies(int numBunnies) {
+  private void spawnBunnies(int numBunnies) {
     print("spawning bunnies");
     int b = numBunnies;
     while ( b > 0) {
